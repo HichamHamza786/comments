@@ -6,6 +6,7 @@ use App\Entity\Comment;
 use App\Form\CommentType;
 use App\Repository\CommentRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -16,13 +17,20 @@ class CommentController extends AbstractController
     /**
      * Displaying all comments
      */
-    #[Route('/', name: 'app_comment')]
-    public function index(CommentRepository $commentRepository): Response
+    #[Route('/comment', name: 'app_comment')]
+    public function index(CommentRepository $commentRepository, Request $request, PaginatorInterface $paginator): Response
     {   
         $comments = $commentRepository->findAll();
 
+        $pagination = $paginator->paginate(
+            $commentRepository->paginationQuery(),
+            $request->query->getInt('page', 1),
+            10
+        );
+
         return $this->render('comment/index.html.twig', [
-            'comments' => $comments,
+            // 'comments' => $comments,
+            'pagination' => $pagination,
         ]);
     }
 
